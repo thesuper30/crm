@@ -74,6 +74,7 @@ export function ClientProvider({ children }) {
             ...unmapClient(clientData),
             id,
             stage: clientData.stage || 'inquiry',
+            services: clientData.services || [],
             created_at: new Date().toISOString()
         };
 
