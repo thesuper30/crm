@@ -85,17 +85,29 @@ export function TaskProvider({ children }) {
 
     const getSelectedTask = () => tasks.find(t => t.id === selectedTaskId);
 
+    const generateUUID = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
     // Actions
     const addTask = async (taskData) => {
-        const dbTask = unmapTask(taskData);
+        const id = taskData.id || generateUUID();
+        const dbTask = {
+            ...unmapTask(taskData),
+            id,
+            status: taskData.status || 'todo',
+            priority: taskData.priority || 'medium',
+            created_at: new Date().toISOString()
+        };
+
         const { data, error } = await supabase
             .from('tasks')
-            .insert([{
-                ...dbTask,
-                status: taskData.status || 'todo',
-                priority: taskData.priority || 'medium',
-                created_at: new Date()
-            }])
+            .insert([dbTask])
             .select();
 
         if (error) {

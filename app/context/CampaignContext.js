@@ -64,15 +64,27 @@ export function CampaignProvider({ children }) {
         setIsLoading(false);
     };
 
+    const generateUUID = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
     const addCampaign = async (campaignData) => {
-        const dbCampaign = unmapCampaign(campaignData);
+        const id = campaignData.id || generateUUID();
+        const dbCampaign = {
+            ...unmapCampaign(campaignData),
+            id,
+            status: campaignData.status || 'Planning',
+            created_at: new Date().toISOString()
+        };
+
         const { data, error } = await supabase
             .from('campaigns')
-            .insert([{
-                ...dbCampaign,
-                status: campaignData.status || 'Planning',
-                created_at: new Date()
-            }])
+            .insert([dbCampaign])
             .select();
 
         if (error) {

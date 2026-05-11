@@ -59,15 +59,27 @@ export function ClientProvider({ children }) {
         setIsLoading(false);
     };
 
+    const generateUUID = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
     const addClient = async (clientData) => {
-        const dbClient = unmapClient(clientData);
+        const id = clientData.id || generateUUID();
+        const dbClient = {
+            ...unmapClient(clientData),
+            id,
+            stage: clientData.stage || 'inquiry',
+            created_at: new Date().toISOString()
+        };
+
         const { data, error } = await supabase
             .from('clients')
-            .insert([{
-                ...dbClient,
-                stage: clientData.stage || 'inquiry',
-                created_at: new Date()
-            }])
+            .insert([dbClient])
             .select();
 
         if (error) {
