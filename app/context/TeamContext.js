@@ -42,6 +42,13 @@ export function TeamProvider({ children }) {
         return () => subscription.unsubscribe();
     }, []);
 
+    // Normalize DB row (snake_case) to app format (camelCase)
+    const normalizeProfile = (row) => ({
+        ...row,
+        roleType: row.role_type || row.roleType || 'editor',
+        reportsTo: row.reports_to || row.reportsTo || null,
+    });
+
     const fetchProfile = async (user) => {
         if (!supabase) return;
         try {
@@ -53,16 +60,15 @@ export function TeamProvider({ children }) {
 
             if (error) {
                 console.error('Error fetching profile:', error);
-                // If profile doesn't exist, we might want to create a default one
-                // For now, just set basic info from auth
                 setCurrentUser({
                     id: user.id,
                     email: user.email,
                     name: user.user_metadata?.name || user.email.split('@')[0],
-                    roleType: 'editor' // default
+                    roleType: 'editor' // default fallback
                 });
             } else {
-                setCurrentUser(data);
+                // Normalize snake_case columns → camelCase so the whole app works
+                setCurrentUser(normalizeProfile(data));
             }
         } catch (err) {
             console.error('Profile fetch failed:', err);
@@ -77,7 +83,8 @@ export function TeamProvider({ children }) {
             .select('*');
         
         if (!error && data) {
-            setMembers(data);
+            // Normalize all member rows too
+            setMembers(data.map(normalizeProfile));
         }
     };
 
@@ -116,31 +123,55 @@ export function TeamProvider({ children }) {
 
     // Database Actions
     const addMember = async (member) => {
-        // Generate a new UUID if one isn't provided, to avoid using the Admin's ID
+        // Generate a new UUID if one isn't provided
         const memberId = member.id || crypto.randomUUID();
+
+        // Convert camelCase → snake_case for DB
+        const dbMember = { ...member, id: memberId, created_at: new Date() };
+        if ('roleType' in dbMember) {
+            dbMember.role_type = dbMember.roleType;
+            delete dbMember.roleType;
+        }
+        if ('reportsTo' in dbMember) {
+            dbMember.reports_to = dbMember.reportsTo;
+            delete dbMember.reportsTo;
+        }
         
         const { data, error } = await supabase
             .from('profiles')
-            .insert([{ ...member, id: memberId, created_at: new Date() }])
+            .insert([dbMember])
             .select();
         
         if (!error && data) {
-            setMembers(prev => [...prev, ...data]);
+            setMembers(prev => [...prev, ...data.map(normalizeProfile)]);
         } else if (error) {
             console.error('Error adding member:', error);
         }
     };
 
     const updateMember = async (id, updates) => {
+        // Convert camelCase app fields → snake_case DB columns
+        const dbUpdates = { ...updates };
+        if ('roleType' in dbUpdates) {
+            dbUpdates.role_type = dbUpdates.roleType;
+            delete dbUpdates.roleType;
+        }
+        if ('reportsTo' in dbUpdates) {
+            dbUpdates.reports_to = dbUpdates.reportsTo;
+            delete dbUpdates.reportsTo;
+        }
+
         const { error } = await supabase
             .from('profiles')
-            .update(updates)
+            .update(dbUpdates)
             .eq('id', id);
         
         if (!error) {
-            setMembers(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+            // Normalize back to camelCase for local state
+            const normalizedUpdates = normalizeProfile({ ...dbUpdates, ...updates });
+            setMembers(prev => prev.map(m => m.id === id ? { ...m, ...normalizedUpdates } : m));
             if (currentUser?.id === id) {
-                setCurrentUser(prev => ({ ...prev, ...updates }));
+                setCurrentUser(prev => ({ ...prev, ...normalizedUpdates }));
             }
         }
     };
