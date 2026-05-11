@@ -39,7 +39,7 @@ export default function Home() {
       {/* Main Content */}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white' }}>
         <header style={{ height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Sales Pipeline</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Sales Pipeline (v1.0.2)</h2>
 
           <div style={{ display: 'flex', gap: '16px' }}>
             <button style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid var(--border)', background: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
