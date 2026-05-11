@@ -1,0 +1,106 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    width: 500px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.form {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formGroup label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.formGroup input[type="text"],
+.formGroup select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.checkboxes {
+    display: flex;
+    gap: 16px;
+}
+
+.checkboxes label {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.cancelBtn {
+    padding: 10px 16px;
+    font-weight: 600;
+    color: #666;
+}
+
+.createBtn {
+    background: var(--accent-primary);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.createBtn:hover {
+    filter: brightness(0.95);
+}

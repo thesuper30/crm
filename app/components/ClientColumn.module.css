@@ -1,0 +1,48 @@
+.column {
+    background: var(--surface);
+    border-radius: 8px;
+    /* Slightly rounded */
+    width: 320px;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fafafa;
+    border-radius: 8px 8px 0 0;
+}
+
+.title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.count {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.droppableArea {
+    padding: 12px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}

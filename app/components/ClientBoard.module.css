@@ -1,0 +1,14 @@
+.boardContainer {
+    height: calc(100vh - 60px);
+    /* Adjust based on header height */
+    overflow-x: auto;
+    padding: 20px 0;
+}
+
+.board {
+    display: flex;
+    gap: 16px;
+    min-width: max-content;
+    padding: 0 20px;
+    height: 100%;
+}
