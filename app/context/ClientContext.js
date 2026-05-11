@@ -14,6 +14,7 @@ const mapClient = (c) => ({
 const unmapClient = (c) => {
     const out = {
         name: c.name,
+        industry: c.industry,
         email: c.email,
         phone: c.phone,
         company: c.company,
@@ -26,8 +27,12 @@ const unmapClient = (c) => {
         probability: c.probability,
         owner_id: c.ownerId || c.owner_id
     };
-    // Remove undefined fields
-    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
+    // Remove undefined fields and explicitly remove 'owner' if it leaked in
+    Object.keys(out).forEach(key => {
+        if (out[key] === undefined || key === 'owner') {
+            delete out[key];
+        }
+    });
     return out;
 };
 
