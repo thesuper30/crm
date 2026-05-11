@@ -43,15 +43,20 @@ export function TeamProvider({ children }) {
     }, []);
 
     // Normalize DB row (snake_case) to app format (camelCase)
-    const normalizeProfile = (row) => ({
-        ...row,
-        roleType: row.role_type || row.roleType || 'editor',
-        reportsTo: row.reports_to || row.reportsTo || null,
-    });
+    const normalizeProfile = (row) => {
+        if (!row) return null;
+        const normalized = {
+            ...row,
+            roleType: row.role_type || row.roleType || 'editor',
+            reportsTo: row.reports_to || row.reportsTo || null,
+        };
+        return normalized;
+    };
 
     const fetchProfile = async (user) => {
         if (!supabase) return;
         try {
+            console.log('Fetching profile for user:', user.id, user.email);
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -59,7 +64,7 @@ export function TeamProvider({ children }) {
                 .single();
 
             if (error) {
-                console.error('Error fetching profile:', error);
+                console.warn('Profile not found or error:', error.message);
                 setCurrentUser({
                     id: user.id,
                     email: user.email,
@@ -67,8 +72,9 @@ export function TeamProvider({ children }) {
                     roleType: 'editor' // default fallback
                 });
             } else {
-                // Normalize snake_case columns → camelCase so the whole app works
-                setCurrentUser(normalizeProfile(data));
+                const profile = normalizeProfile(data);
+                console.log('Profile loaded successfully. Role:', profile.roleType);
+                setCurrentUser(profile);
             }
         } catch (err) {
             console.error('Profile fetch failed:', err);
@@ -121,10 +127,20 @@ export function TeamProvider({ children }) {
         setCurrentUser(null);
     };
 
+    const generateUUID = () => {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+
     // Database Actions
     const addMember = async (member) => {
         // Generate a new UUID if one isn't provided
-        const memberId = member.id || crypto.randomUUID();
+        const memberId = member.id || generateUUID();
 
         // Convert camelCase → snake_case for DB
         const dbMember = { ...member, id: memberId, created_at: new Date() };
