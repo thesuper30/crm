@@ -137,21 +137,29 @@ export function TeamProvider({ children }) {
         });
     };
 
+    const unmapProfile = (p) => {
+        const out = {
+            email: p.email,
+            name: p.name,
+            avatar: p.avatar,
+            color: p.color,
+            role_type: p.roleType || p.role_type,
+            reports_to: p.reportsTo || p.reports_to,
+            client_id: p.clientId || p.client_id
+        };
+        // Remove undefined fields
+        Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
+        return out;
+    };
+
     // Database Actions
     const addMember = async (member) => {
-        // Generate a new UUID if one isn't provided
         const memberId = member.id || generateUUID();
-
-        // Convert camelCase → snake_case for DB
-        const dbMember = { ...member, id: memberId, created_at: new Date() };
-        if ('roleType' in dbMember) {
-            dbMember.role_type = dbMember.roleType;
-            delete dbMember.roleType;
-        }
-        if ('reportsTo' in dbMember) {
-            dbMember.reports_to = dbMember.reportsTo;
-            delete dbMember.reportsTo;
-        }
+        const dbMember = {
+            ...unmapProfile(member),
+            id: memberId,
+            created_at: new Date().toISOString()
+        };
         
         const { data, error } = await supabase
             .from('profiles')
@@ -166,16 +174,7 @@ export function TeamProvider({ children }) {
     };
 
     const updateMember = async (id, updates) => {
-        // Convert camelCase app fields → snake_case DB columns
-        const dbUpdates = { ...updates };
-        if ('roleType' in dbUpdates) {
-            dbUpdates.role_type = dbUpdates.roleType;
-            delete dbUpdates.roleType;
-        }
-        if ('reportsTo' in dbUpdates) {
-            dbUpdates.reports_to = dbUpdates.reportsTo;
-            delete dbUpdates.reportsTo;
-        }
+        const dbUpdates = unmapProfile(updates);
 
         const { error } = await supabase
             .from('profiles')

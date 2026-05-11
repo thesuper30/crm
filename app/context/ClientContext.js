@@ -8,6 +8,8 @@ const ClientContext = createContext();
 const mapClient = (c) => ({
     ...c,
     ownerId: c.owner_id,
+    portalEmail: c.portal_email,
+    portalPassword: c.portal_password,
     createdAt: c.created_at
 });
 
@@ -25,11 +27,13 @@ const unmapClient = (c) => {
         services: c.services,
         value: c.value,
         probability: c.probability,
+        portal_email: c.portalEmail || c.portal_email,
+        portal_password: c.portalPassword || c.portal_password,
         owner_id: c.ownerId || c.owner_id
     };
     // Remove undefined fields and explicitly remove 'owner' if it leaked in
     Object.keys(out).forEach(key => {
-        if (out[key] === undefined || key === 'owner') {
+        if (out[key] === undefined || key === 'owner' || key === 'priority') {
             delete out[key];
         }
     });

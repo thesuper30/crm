@@ -14,15 +14,18 @@ const mapCampaign = (c) => ({
 });
 
 const unmapCampaign = (c) => {
-    const out = { ...c };
-    if (c.clientId !== undefined) out.client_id = c.clientId;
-    if (c.startDate !== undefined) out.start_date = c.startDate;
-    if (c.endDate !== undefined) out.end_date = c.endDate;
-    if (c.createdAt !== undefined) out.created_at = c.createdAt;
-    delete out.clientId;
-    delete out.startDate;
-    delete out.endDate;
-    delete out.createdAt;
+    const out = {
+        name: c.name,
+        status: c.status,
+        budget: c.budget,
+        spend: c.spend,
+        progress: c.progress,
+        client_id: c.clientId || c.client_id,
+        start_date: c.startDate || c.start_date,
+        end_date: c.endDate || c.end_date
+    };
+    // Remove undefined fields
+    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
     return out;
 };
 

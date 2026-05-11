@@ -1,5 +1,6 @@
 "use client";
 
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const NoteContext = createContext();
@@ -11,11 +12,15 @@ const mapNote = (n) => ({
 });
 
 const unmapNote = (n) => {
-    const out = { ...n };
-    if (n.clientId !== undefined) out.client_id = n.clientId;
-    if (n.createdAt !== undefined) out.created_at = n.createdAt;
-    delete out.clientId;
-    delete out.createdAt;
+    const out = {
+        title: n.title,
+        content: n.content,
+        color: n.color,
+        is_pinned: n.is_pinned !== undefined ? n.is_pinned : n.isPinned,
+        client_id: n.clientId || n.client_id
+    };
+    // Remove undefined fields
+    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
     return out;
 };
 
