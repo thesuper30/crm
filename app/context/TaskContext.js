@@ -15,19 +15,20 @@ const mapTask = (t) => ({
 });
 
 const unmapTask = (t) => {
-    const out = { ...t };
-    if (t.clientId !== undefined) out.client_id = t.clientId;
-    if (t.assigneeId !== undefined) out.assignee_id = t.assigneeId;
-    if (t.dueDate !== undefined) out.due_date = t.dueDate;
-    if (t.completionDate !== undefined) out.completion_date = t.completionDate;
-    if (t.createdAt !== undefined) out.created_at = t.createdAt;
-    
-    // Remove the camelCase ones to avoid double data
-    delete out.clientId;
-    delete out.assigneeId;
-    delete out.dueDate;
-    delete out.completionDate;
-    delete out.createdAt;
+    const out = {
+        title: t.title,
+        status: t.status,
+        priority: t.priority,
+        notes: t.notes,
+        service: t.service,
+        client_id: t.clientId || t.client_id,
+        assignee_id: t.assigneeId || t.assignee_id,
+        due_date: t.dueDate || t.due_date,
+        completion_date: t.completionDate || t.completion_date,
+        assignee: t.assignee
+    };
+    // Remove undefined fields
+    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
     return out;
 };
 

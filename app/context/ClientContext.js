@@ -12,11 +12,22 @@ const mapClient = (c) => ({
 });
 
 const unmapClient = (c) => {
-    const out = { ...c };
-    if (c.ownerId !== undefined) out.owner_id = c.ownerId;
-    if (c.createdAt !== undefined) out.created_at = c.createdAt;
-    delete out.ownerId;
-    delete out.createdAt;
+    const out = {
+        name: c.name,
+        email: c.email,
+        phone: c.phone,
+        company: c.company,
+        website: c.website,
+        status: c.status,
+        stage: c.stage,
+        source: c.source,
+        services: c.services,
+        value: c.value,
+        probability: c.probability,
+        owner_id: c.ownerId || c.owner_id
+    };
+    // Remove undefined fields
+    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
     return out;
 };
 
