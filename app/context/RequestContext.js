@@ -15,11 +15,16 @@ const mapRequest = (r) => ({
 });
 
 const unmapRequest = (r) => {
-    const out = { ...r };
-    if (r.clientId !== undefined) out.client_id = r.clientId;
-    if (r.createdAt !== undefined) out.created_at = r.createdAt;
-    delete out.clientId;
-    delete out.createdAt;
+    const out = {
+        title: r.title,
+        details: r.details,
+        type: r.type,
+        priority: r.priority,
+        status: r.status,
+        client_id: r.clientId || r.client_id
+    };
+    // Remove undefined fields
+    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
     return out;
 };
 

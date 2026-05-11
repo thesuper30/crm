@@ -24,11 +24,14 @@ const unmapTask = (t) => {
         client_id: t.clientId || t.client_id,
         assignee_id: t.assigneeId || t.assignee_id,
         due_date: t.dueDate || t.due_date,
-        completion_date: t.completionDate || t.completion_date,
-        assignee: t.assignee
+        completion_date: t.completionDate || t.completion_date
     };
-    // Remove undefined fields
-    Object.keys(out).forEach(key => out[key] === undefined && delete out[key]);
+    // Remove undefined fields and explicitly remove 'assignee' if it leaked in
+    Object.keys(out).forEach(key => {
+        if (out[key] === undefined || key === 'assignee') {
+            delete out[key];
+        }
+    });
     return out;
 };
 
