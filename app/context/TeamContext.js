@@ -92,13 +92,16 @@ export function TeamProvider({ children }) {
         return { success: true, user: data.user };
     };
 
-    const signUpWithPassword = async (email, password, name) => {
+    const signUpWithPassword = async (email, password, name, roleType = 'editor') => {
         if (!supabase) return { success: false, error: 'Supabase not initialized' };
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                data: { name }
+                data: { 
+                    name,
+                    role_type: roleType 
+                }
             }
         });
 
@@ -113,13 +116,18 @@ export function TeamProvider({ children }) {
 
     // Database Actions
     const addMember = async (member) => {
+        // Generate a new UUID if one isn't provided, to avoid using the Admin's ID
+        const memberId = member.id || crypto.randomUUID();
+        
         const { data, error } = await supabase
             .from('profiles')
-            .insert([{ ...member, created_at: new Date() }])
+            .insert([{ ...member, id: memberId, created_at: new Date() }])
             .select();
         
         if (!error && data) {
             setMembers(prev => [...prev, ...data]);
+        } else if (error) {
+            console.error('Error adding member:', error);
         }
     };
 

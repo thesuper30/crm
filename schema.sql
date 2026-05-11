@@ -90,13 +90,25 @@ BEGIN
     new.email,
     COALESCE(new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
     COALESCE(new.raw_user_meta_data->>'avatar', '👤'),
-    COALESCE(new.raw_user_meta_data->>'role_type', 'editor')
-  );
+    CASE 
+      WHEN new.email = 'trainer6@da360.ai' THEN 'super_admin'
+      ELSE COALESCE(new.raw_user_meta_data->>'role_type', 'editor')
+    END
+  )
+  ON CONFLICT (email) DO UPDATE SET
+    id = EXCLUDED.id,
+    role_type = CASE 
+      WHEN EXCLUDED.email = 'trainer6@da360.ai' THEN 'super_admin'
+      ELSE profiles.role_type -- Keep existing role if already set by Admin
+    END,
+    name = COALESCE(profiles.name, EXCLUDED.name);
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger the function every time a user is created
+-- (Drop first to avoid conflicts if it already exists)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
